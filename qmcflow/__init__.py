@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Documentation about pyCHAMP"""
+"""Documentation about qmcflow"""
 
 from .__version__ import __version__
 
