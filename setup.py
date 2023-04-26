@@ -15,7 +15,7 @@ with open('README.md') as readme_file:
     readme = readme_file.read()
 
 setup(
-    name='schrodinet',
+    name='qmcflow',
     version=version['__version__'],
     description="Solving the Schrodinger equation using Normalizing Flows",
     long_description=readme + '\n\n',
