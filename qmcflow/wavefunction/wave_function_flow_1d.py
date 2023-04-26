@@ -2,8 +2,7 @@ import torch
 from torch.autograd import grad
 from torch import nn
 import numpy as np
-from schrodinet.wavefunction.wf_base import WaveFunction
-from schrodinet.wavefunction.wave_function_1d import WaveFunction1D
+from qmcflow.wavefunction.wf_base import WaveFunction
 import pyro.distributions as dist
 from torch.distributions import constraints
 import pyro.distributions.transforms as T

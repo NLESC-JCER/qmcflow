@@ -4,29 +4,21 @@ import torch
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 
-from schrodinet.solver.torch_utils import DataSet, Loss, ZeroOneClipper
+from qmcflow.solver.torch_utils import DataSet, Loss, ZeroOneClipper
 
 
-class Solver(object):
+class FlowSolver(object):
 
-    def __init__(self, wf=None, sampler=None, optimizer=None, scheduler=None):
+    def __init__(self, wf=None,  optimizer=None, scheduler=None):
 
         self.wf = wf
-        self.sampler = sampler
         self.opt = optimizer
         self.scheduler = scheduler
-        self.task = "wf_opt"
-
-        # esampling
-        self.resampling(ntherm=-1,
-                        resample=100,
-                        resample_from_last=True,
-                        resample_every=1)
 
         # observalbe
         self.observable(['local_energy'])
 
-    def run(self, nepoch, batchsize=None, save='model.pth',
+    def run(self, nepoch, nsample, resample_every=1, batchsize=None, save='model.pth',
             loss='variance', plot=None, pos=None, with_tqdm=True):
         '''Train the model.
 
@@ -53,27 +45,19 @@ class Solver(object):
         self.save_model = save
 
         # sample the wave function
-        pos = self.sample(
-            pos=pos, ntherm=self.resample.ntherm, with_tqdm=with_tqdm)
+        pos = self.wf.flow.sample([nsample])  # .detach()
 
-        # determine the batching mode
-        if batchsize is None:
-            batchsize = len(pos)
+        # # determine the batching mode
+        # if batchsize is None:
+        #     batchsize = len(pos)
 
-        # change the number of steps
-        _nstep_save = self.sampler.nstep
-        self.sampler.nstep = self.resample.resample
-
-        # create the data loader
-        self.dataset = DataSet(pos)
-        self.dataloader = DataLoader(
-            self.dataset, batch_size=batchsize)
+        # # create the data loader
+        # self.dataset = DataSet(pos)
+        # self.dataloader = DataLoader(
+        #     self.dataset, batch_size=batchsize)
 
         # get the loss
         self.loss = Loss(self.wf, method=loss)
-
-        # clipper for the fc weights
-        clipper = ZeroOneClipper()
 
         cumulative_loss = []
         min_loss = 1E3
@@ -83,18 +67,16 @@ class Solver(object):
             print('epoch %d' % n)
 
             cumulative_loss = 0
-            for ibatch, data in enumerate(self.dataloader):
+            # for ibatch, data in enumerate(self.dataloader):
 
-                lpos = Variable(data)
-                lpos.requires_grad = True
+            # lpos = Variable(data)
+            # lpos.requires_grad = True
 
-                loss, eloc = self.evaluate_gradient(
-                    lpos, self.loss.method)
-                cumulative_loss += loss
-                self.opt.step()
-
-                if self.wf.fc.clip:
-                    self.wf.fc.apply(clipper)
+            loss, eloc = self.evaluate_gradient(
+                pos, self.loss.method)
+            cumulative_loss += loss
+            self.opt.step()
+            self.wf.flow.clear_cache()
 
             if plot is not None:
                 plot.drawNow()
@@ -105,26 +87,18 @@ class Solver(object):
 
             # get the observalbes
             self.get_observable(
-                self.obs_dict, pos, eloc, ibatch=ibatch)
+                self.obs_dict, pos, eloc, ibatch=0)
             self.print_observable(cumulative_loss)
 
             print('----------------------------------------')
 
             # resample the data
-            if (n % self.resample.resample_every == 0) or (n == nepoch-1):
-                if self.resample.resample_from_last:
-                    pos = pos.clone().detach()
-                else:
-                    pos = None
-                pos = self.sample(
-                    pos=pos, ntherm=self.resample.ntherm, with_tqdm=False)
-                self.dataloader.dataset.data = pos
+            if (n % resample_every == 0) or (n == nepoch-1):
+                pos = self.wf.flow.sample([nsample])
+                # self.dataloader.dataset.data = pos
 
             if self.scheduler is not None:
                 self.scheduler.step()
-
-        # restore the sampler number of step
-        self.sampler.nstep = _nstep_save
 
     def evaluate_gradient(self, lpos, loss):
         """Evaluate the gradient
@@ -187,7 +161,7 @@ class Solver(object):
 
         # compute local energy and wf values
         psi = self.wf(lpos)
-        eloc = self.wf.local_energy(lpos, wf=psi)
+        eloc = self.wf.local_energy(lpos)
         norm = 1./len(psi)
 
         # evaluate the prefactor of the grads
@@ -203,15 +177,6 @@ class Solver(object):
 
         return torch.mean(eloc), eloc
 
-    def resampling(self, ntherm=-1, resample=100, resample_from_last=True,
-                   resample_every=1):
-        '''Configure the resampling options.'''
-        self.resample = SimpleNamespace()
-        self.resample.ntherm = ntherm
-        self.resample.resample = resample
-        self.resample.resample_from_last = resample_from_last
-        self.resample.resample_every = resample_every
-
     def observable(self, obs):
         '''Create the observalbe we want to track.'''
 
@@ -224,22 +189,14 @@ class Solver(object):
         if 'local_energy' not in self.obs_dict:
             self.obs_dict['local_energy'] = []
 
-        if self.task == 'geo_opt' and 'geometry' not in self.obs_dict:
-            self.obs_dict['geometry'] = []
-
         for key, p in zip(self.wf.state_dict().keys(), self.wf.parameters()):
             if p.requires_grad:
                 self.obs_dict[key] = []
                 self.obs_dict[key+'.grad'] = []
 
-    def sample(self, ntherm=-1, ndecor=100, with_tqdm=True, pos=None):
+    def sample(self, nsample):
         ''' sample the wave function.'''
-
-        pos = self.sampler.generate(
-            self.wf.pdf, ntherm=ntherm, ndecor=ndecor,
-            with_tqdm=with_tqdm, pos=pos)
-        pos.requires_grad = True
-        return pos
+        return self.wf.flow.sample([nsample])
 
     def get_observable(self, obs_dict, pos, eloc=None, ibatch=None, **kwargs):
         '''compute all the required observable.
@@ -325,10 +282,11 @@ class Solver(object):
             pos = self.sample(ntherm=-1)
         return self.wf.variance(pos)
 
-    def single_point(self, pos=None, prt=True, ntherm=-1, ndecor=100):
+    def single_point(self, nsample, pos=None, prt=True):
         '''Performs a single point calculation.'''
         if pos is None:
-            pos = self.sample(ntherm=ntherm, ndecor=ndecor)
+            pos = self.sample([nsample]).detach()
+            pos.requires_grad = True
 
         e, s = self.wf._energy_variance(pos)
         if prt:
@@ -344,11 +302,3 @@ class Solver(object):
             'loss': loss
         }, filename)
         return loss
-
-    def sampling_traj(self, pos):
-        ndim = pos.shape[-1]
-        p = pos.view(-1, self.sampler.nwalkers, ndim)
-        el = []
-        for ip in tqdm(p):
-            el.append(self.wf.local_energy(ip).detach().numpy())
-        return {'local_energy': el, 'pos': p}

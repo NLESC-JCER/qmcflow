@@ -7,15 +7,15 @@ from torch.distributions import constraints
 from torch.distributions.transforms import ExpTransform
 
 
-from schrodinet.wavefunction.wave_function_flow_1d import WaveFunctionFlow1D, Flow, GaussianTransform
-from schrodinet.solver.flow_solver import FlowSolver
+from qmcflow.wavefunction.wave_function_flow_1d import WaveFunctionFlow1D, Flow, GaussianTransform
+from qmcflow.solver.flow_solver import FlowSolver
 
 import pyro.distributions as dist
 import pyro.distributions.transforms as T
 from pyro.nn import AutoRegressiveNN
 
 import matplotlib.pyplot as plt
-from schrodinet.solver.plot import plot_results_1d, plotter1d
+from qmcflow.solver.plot import plot_results_1d, plotter1d
 from torch.autograd import grad, Variable
 
 from pyro.distributions.transforms.spline import ConditionedSpline
