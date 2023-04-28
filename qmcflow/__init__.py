@@ -1,9 +1,7 @@
+# -*- coding: utf-8 -*-
 """Documentation about qmcflow"""
-import logging
 
+from .__version__ import __version__
 
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-
-__author__ = "Luuk Renden"
-__email__ = "l.renden@esciencecenter.nl"
-__version__ = "0.1.0"
+__author__ = "Nicolas Renaud"
+__email__ = 'n.renaud@esciencecenter.nl'

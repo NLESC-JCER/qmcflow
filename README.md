@@ -1,25 +1,3 @@
-## Badges
-
-(Customize these badges with your own links, and check https://shields.io/ or https://badgen.net/ to see which other badges are available.)
-
-| fair-software.eu recommendations | |
-| :-- | :--  |
-| (1/5) code repository              | [![github repo badge](https://img.shields.io/badge/github-repo-000.svg?logo=github&labelColor=gray&color=blue)](git@github.com:NLESC-JCER/qmcflow) |
-| (2/5) license                      | [![github license badge](https://img.shields.io/github/license/NLESC-JCER/qmcflow)](git@github.com:NLESC-JCER/qmcflow) |
-| (3/5) community registry           | [![RSD](https://img.shields.io/badge/rsd-qmcflow-00a3e3.svg)](https://www.research-software.nl/software/qmcflow) [![workflow pypi badge](https://img.shields.io/pypi/v/qmcflow.svg?colorB=blue)](https://pypi.python.org/project/qmcflow/) |
-| (4/5) citation                     | [![DOI](https://zenodo.org/badge/DOI/<replace-with-created-DOI>.svg)](https://doi.org/<replace-with-created-DOI>) |
-| (5/5) checklist                    | [![workflow cii badge](https://bestpractices.coreinfrastructure.org/projects/<replace-with-created-project-identifier>/badge)](https://bestpractices.coreinfrastructure.org/projects/<replace-with-created-project-identifier>) |
-| howfairis                          | [![fair-software badge](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B-yellow)](https://fair-software.eu) |
-| **Other best practices**           | &nbsp; |
-| Static analysis                    | [![workflow scq badge](https://sonarcloud.io/api/project_badges/measure?project=NLESC-JCER_qmcflow&metric=alert_status)](https://sonarcloud.io/dashboard?id=NLESC-JCER_qmcflow) |
-| Coverage                           | [![workflow scc badge](https://sonarcloud.io/api/project_badges/measure?project=NLESC-JCER_qmcflow&metric=coverage)](https://sonarcloud.io/dashboard?id=NLESC-JCER_qmcflow) |
-| Documentation                      | [![Documentation Status](https://readthedocs.org/projects/qmcflow/badge/?version=latest)](https://qmcflow.readthedocs.io/en/latest/?badge=latest) |
-| **GitHub Actions**                 | &nbsp; |
-| Build                              | [![build](git@github.com:NLESC-JCER/qmcflow/actions/workflows/build.yml/badge.svg)](git@github.com:NLESC-JCER/qmcflow/actions/workflows/build.yml) |
-| Citation data consistency               | [![cffconvert](git@github.com:NLESC-JCER/qmcflow/actions/workflows/cffconvert.yml/badge.svg)](git@github.com:NLESC-JCER/qmcflow/actions/workflows/cffconvert.yml) |
-| SonarCloud                         | [![sonarcloud](git@github.com:NLESC-JCER/qmcflow/actions/workflows/sonarcloud.yml/badge.svg)](git@github.com:NLESC-JCER/qmcflow/actions/workflows/sonarcloud.yml) |
-| MarkDown link checker              | [![markdown-link-check](git@github.com:NLESC-JCER/qmcflow/actions/workflows/markdown-link-check.yml/badge.svg)](git@github.com:NLESC-JCER/qmcflow/actions/workflows/markdown-link-check.yml) |
-
 ## How to use qmcflow
 
 Implementation of normalizing flows for QMC

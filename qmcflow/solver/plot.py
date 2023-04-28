@@ -10,7 +10,7 @@ try:
 except ImportError:
     print('skimage  required for 3d plot')
 
-from schrodinet.solver.plot_data import plot_observable
+from qmcflow.solver.plot_data import plot_observable
 
 
 def regular_mesh_2d(xmin=-2, xmax=2, ymin=-2., ymax=2, nx=5, ny=5):
